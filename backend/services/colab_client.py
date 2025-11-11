@@ -26,7 +26,8 @@ def datarowloader(df, rowindex):
     return row
 
 def send_prediction_request(endpoint, arr):
-    arr = arr.tolist()
+    if type(arr) != list:
+        arr = arr.tolist()
     res = requests.post(endpoint, json={"input": arr})
     try:
         return res.json()

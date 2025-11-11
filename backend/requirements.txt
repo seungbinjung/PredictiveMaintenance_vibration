@@ -7,3 +7,4 @@ psycopg[binary]   # psycopg3 (Python 3.13 호환)
 pandas
 numpy
 pyarrow  # Parquet 파일 지원
+redis
