@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from config import COLAB_URL
 
-def dataloader(datapath):
+def dataloader(datapath): #개발과정에서 사용됨 함수 (스트림 데이터가 아닌 덩어리 데이터 이용)
     PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
     EXTRA_PATHS = [
         str(PROJECT_ROOT),                      
@@ -21,11 +21,11 @@ def dataloader(datapath):
     df = pd.read_parquet(f"{PROJECT_ROOT}/{datapath}")
     return df
 
-def datarowloader(df, rowindex):
+def datarowloader(df, rowindex): #개발과정에서 사용된 함수 (스트림 데이터가 아닌 덩어리 데이터 이용)
     row = df.iloc[rowindex]
     return row
 
-def send_prediction_request(endpoint, arr):
+def send_prediction_request(endpoint, arr): #colab분석서버로 요청보내는 함수
     if type(arr) != list:
         arr = arr.tolist()
     res = requests.post(endpoint, json={"input": arr})
@@ -38,6 +38,6 @@ def send_prediction_request(endpoint, arr):
 
 
 # 사용 예시
-
+# colab flask서버와 연결을 확인하기 위해 사용했던 방식
 # data = datarowloader(dataloader("no_label.parquet"), 0)
 # print(send_prediction_request(f"{COLAB_URL}/predict", data))

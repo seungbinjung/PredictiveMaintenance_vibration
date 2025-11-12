@@ -3,7 +3,9 @@ import redis
 from backend.config import REDIS_HOST, REDIS_PORT, REDIS_DB
 from pathlib import Path
 
-def parquet_to_redis(parquet_path: str):
+#실제 데이터를 생성할수 없어 학습에 사용되지 않은 데이터를 스트림 하기위해 사전에 redis에 저장하는 모듈
+
+def parquet_to_redis(parquet_path: str): 
     # Redis 연결
     r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
 
@@ -29,4 +31,5 @@ if __name__ == "__main__":
     parquet_path = base_dir / "no_label.parquet"
     parquet_to_redis(str(parquet_path))
 
+# 터미널에서 프로젝트 파일로 이동후 아래 커맨드 입력하여 redis에 데이터 저장
 # python -m backend.services.parquet_to_redis

@@ -1,21 +1,24 @@
 from fastapi import APIRouter
 from services.stream_db import stream_db
+from services.redis_reader import redis_reader
 import random
 
 router = APIRouter()
 
 @router.post("/push")
-def push_random_vibration():
-    """랜덤 진동값을 두 큐 중 활성 큐로 푸시"""
-    value = round(random.uniform(-1, 1), 6)
+def push_redis_vibration():
+    """redis에 저장된 진동값을 조회해서 두 큐 중 활성 큐로 푸시"""
+    value = redis_reader.get_next_value()
+    if value is None:
+        return {"message": "No more data in Redis."}
     stream_db.push_vibration(value)
     return stream_db.get_queue_status()
 
 @router.post("/infinitepush")
 def push_infinite():
-    """push_random_vibration 함수 무한 반복 실행"""
+    """push_redis_vibration 함수 무한 반복 실행"""
     while True:
-        push_random_vibration()
+        push_redis_vibration()
     done
 @router.get("/status")
 def get_status():

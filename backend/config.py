@@ -10,3 +10,5 @@ COLAB_URL = os.getenv("COLAB_URL")  # Colab에서 Flask/ngrok으로 노출된 AP
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 REDIS_DB = int(os.getenv("REDIS_DB", 0))
+
+TEST_PARQUET = "test_dataset.parquet"

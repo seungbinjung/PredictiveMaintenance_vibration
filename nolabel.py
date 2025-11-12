@@ -5,12 +5,14 @@ import pandas as pd
 from pathlib import Path
 
 # 파일 경로 설정
-input_file = Path("test_dataset0.parquet")
+input_file = Path("test_dataset.parquet")
 output_file = Path("no_label.parquet")
 
 # Parquet 파일 로드
 print(f"파일 로딩 중: {input_file}")
 df = pd.read_parquet(input_file)
+
+df = df.sample(frac=0.5).reset_index(drop=True)
 
 print(f"원본 데이터 shape: {df.shape}")
 print(f"컬럼 수: {len(df.columns)}")

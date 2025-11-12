@@ -4,6 +4,8 @@ from config import REDIS_HOST, REDIS_PORT, REDIS_DB
 from services.colab_client import send_prediction_request
 from config import COLAB_URL
 
+#스트림되는 데이터를 큐에 저장해서 분석서버에 보내기 적합한 형태 (1,12000)로 만든 후 request보내는 모듈
+
 BATCH_SIZE = 12000
 
 class StreamDB:

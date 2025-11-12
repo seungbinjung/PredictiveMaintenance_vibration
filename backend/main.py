@@ -20,3 +20,6 @@ app.include_router(data.router, prefix="/data")
 @app.get("/")
 def root():
     return {"status": "Backend is running!"}
+
+# 실행방법
+# uvicorn main:app --reload
