@@ -3,7 +3,7 @@ uvicorn
 requests
 sqlalchemy
 python-dotenv
-psycopg[binary]   # psycopg3 (Python 3.13 호환)
+psycopg2   # psycopg3 (Python 3.13 호환)
 pandas
 numpy
 pyarrow  # Parquet 파일 지원

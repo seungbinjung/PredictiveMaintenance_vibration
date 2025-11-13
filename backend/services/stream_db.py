@@ -1,8 +1,11 @@
 import redis
 import json
+import time
 from config import REDIS_HOST, REDIS_PORT, REDIS_DB
 from services.colab_client import send_prediction_request
 from config import COLAB_URL
+from database import SessionLocal
+from models.analysis_result import AnalysisResult
 
 #스트림되는 데이터를 큐에 저장해서 분석서버에 보내기 적합한 형태 (1,12000)로 만든 후 request보내는 모듈
 
@@ -23,14 +26,14 @@ class StreamDB:
 
         # 현재 active 큐가 가득 찼을 때
         if active_len >= BATCH_SIZE:
-            # 다음 데이터를 inactive 큐에 넣기 시작
-            self.client.rpush(self.inactive_queue, value)
 
-            # inactive 큐에 첫 데이터가 들어갔다는 것은,
             # active 큐가 이미 가득 찼음을 의미하므로 분석 서버로 전송
             batch = self.client.lrange(self.active_queue, 0, -1)
             batch = [float(x) for x in batch]
             self.send_to_analysis(batch)
+
+            # 다음 데이터를 inactive 큐에 넣기 시작
+            self.client.rpush(self.inactive_queue, value)
 
             # active 큐 초기화 및 교대
             self.client.delete(self.active_queue)
@@ -49,6 +52,19 @@ class StreamDB:
         try:
             response = send_prediction_request(f"{COLAB_URL}/predict", data)
             print(f"✅ Sent batch ({len(data)} pts) to analysis. Result: {response}")
+            # --- 결과 저장 ---
+            db = SessionLocal()
+            result = AnalysisResult(
+                batch_id=int(time.time()),  # 단순한 배치 구분값 (timestamp)
+                input_data=data,
+                prediction=response.get("prediction", None),
+                label=str(response.get("label", "")),
+            )
+            db.add(result)
+            db.commit()
+            db.close()
+            print("💾 Saved analysis result to DB.")
+
         except Exception as e:
             print(f"❌ Failed to send batch to analysis: {e}")
 
