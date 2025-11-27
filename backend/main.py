@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import analysis, data, results
+from routers import analysis, data, results, sse
 from database import Base, engine
 from models.analysis_result import AnalysisResult
+from services.vibration_task import vibration_loop
+import asyncio
 
 app = FastAPI(title="Vibration Fault Prediction API")
 
@@ -27,10 +29,20 @@ def init_database():
         else:
             print("📦 analysis_results 테이블이 이미 존재합니다. 스킵합니다.")
 
+# -------------------------------
+# 🚀 Redis Stream 소비 루프 시작
+# -------------------------------
+@app.on_event("startup")
+async def start_vibration_consumer():
+    asyncio.create_task(vibration_loop())   # 중요 ★
+    print("🚀 vibration background task scheduled.")
+
+
 # 라우터 등록
 app.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
 app.include_router(data.router, prefix="/data", tags=["data"])
 app.include_router(results.router, prefix="/results", tags=["results"])
+app.include_router(sse.router, prefix="/sse", tags=["sse"])
 
 @app.get("/")
 def root():
