@@ -22,14 +22,14 @@ export default function Dashboard() {
 
       <div className="col-span-2 bg-[#1a1a1a] p-4 rounded-xl mt-6 shadow-xl border border-gray-700">
         <h2 className="text-xl mb-4 text-yellow-300 font-bold">
-          ⚠️ 최근 고장 이벤트
+          ⚠️ 전동기 설비 상태
         </h2>
         <RecentEvents />
       </div>
 
       <div className="bg-[#1a1a1a] p-4 rounded-xl mt-6 shadow-xl border border-gray-700">
         <h2 className="text-xl mb-4 text-blue-300 font-bold">
-          🖥 시스템 상태
+          🖥 시스템 연결 상태
         </h2>
         <StatusIndicator />
       </div>

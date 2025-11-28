@@ -18,7 +18,7 @@ async def vibration_loop():
             await asyncio.sleep(0.001)
             continue
         
-        # print("BROADCAST VALUE:", value)
+        print("BROADCAST VALUE:", value)
 
         # DB에는 원본(550Hz)을 그대로 저장
         stream_db.push_vibration(value)
@@ -26,6 +26,6 @@ async def vibration_loop():
         # SSE는 downsample해서 전송
         counter += 1
         if counter % DOWNSAMPLE_RATE == 0:
-            await sse_manager.broadcast(value)
+            await sse_manager.broadcast_vibration(value)
 
         await asyncio.sleep(0.0001)

@@ -1,7 +1,6 @@
-// frontend/src/hooks/useSSE.js
 import { useEffect, useState } from "react";
 
-export default function useSSE(url) {
+export default function useVibrationSSE(url) {
   const [value, setValue] = useState(null);
 
   useEffect(() => {
@@ -10,11 +9,12 @@ export default function useSSE(url) {
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data?.value !== undefined) {
-          setValue(data.value);
+
+        if (data.value !== undefined) {
+          setValue(data.value); // vibration only
         }
-      } catch (e) {
-        console.error("SSE parse error:", e);
+      } catch (err) {
+        console.error("Vibration SSE parse error:", err);
       }
     };
 

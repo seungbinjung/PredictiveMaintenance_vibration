@@ -1,12 +1,12 @@
 // frontend/src/components/LiveChart.jsx
 import { useEffect, useRef } from "react";
-import useSSE from "../hooks/useSSE";
+import useVibrationSSE from "../hooks/useVibrationSSE";
 import Chart from "chart.js/auto";
 
 const MAX_POINTS = 200;  // 화면에 보일 포인트 수 (약 2초 분량)
 
 export default function LiveChart() {
-  const value = useSSE("http://localhost:8000/sse/vibration");
+  const value = useVibrationSSE("http://localhost:8000/sse/vibration");
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
 

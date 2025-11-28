@@ -50,7 +50,7 @@ def get_recent_results():
             "id": r.id,
             "prediction": r.prediction,
             "label": r.label,
-            "timestamp": r.created_at,
+            "created_at": r.created_at,
         }
         for r in results
     ]

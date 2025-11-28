@@ -1,8 +1,11 @@
 # backend/services/analysis_worker.py
 import asyncio
 import time
+
+from pyarrow import record_batch
 from services.colab_client import send_prediction_request_async
 from database import SessionLocal
+from services.sse_manager import sse_manager
 from models.analysis_result import AnalysisResult
 from config import COLAB_URL
 
@@ -40,9 +43,17 @@ async def analysis_worker():
             )
             db.add(record)
             db.commit()
+            db.refresh(record)
             db.close()
 
             print("💾 Saved analysis result to DB.")
+
+            await sse_manager.broadcast_result({
+                "created_at": record.created_at.isoformat(),
+                "label": record.label,
+                "prediction": record.prediction
+            })
+
 
         except Exception as e:
             print("❌ Analysis worker error:", e)
