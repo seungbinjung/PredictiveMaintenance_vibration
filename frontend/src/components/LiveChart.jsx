@@ -41,8 +41,8 @@ export default function LiveChart() {
           },
           y: {
             // beginAtZero: true,
-            min: -1,
-            max: 1,
+            min: -0.1,
+            max: 0.1,
           },
         },
       },

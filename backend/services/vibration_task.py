@@ -18,7 +18,7 @@ async def vibration_loop():
             await asyncio.sleep(0.001)
             continue
         
-        print("BROADCAST VALUE:", value)
+        # print("BROADCAST VALUE:", value)
 
         # DB에는 원본(550Hz)을 그대로 저장
         stream_db.push_vibration(value)

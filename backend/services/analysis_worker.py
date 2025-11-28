@@ -51,7 +51,8 @@ async def analysis_worker():
             await sse_manager.broadcast_result({
                 "created_at": record.created_at.isoformat(),
                 "label": record.label,
-                "prediction": record.prediction
+                "prediction": record.prediction,
+                "probabilities": record.probabilities
             })
 
 
