@@ -1,43 +1,9 @@
-import numpy as np
-import requests
-import pandas as pd
-import sys
-from pathlib import Path
-from config import COLAB_URL
+import aiohttp
 
-def dataloader(datapath): #개발과정에서 사용됨 함수 (스트림 데이터가 아닌 덩어리 데이터 이용)
-    PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-    EXTRA_PATHS = [
-        str(PROJECT_ROOT),                      
-        str(PROJECT_ROOT / "backend")        
-    ]
-
-    print("📂 Current file:", __file__)
-    print("📍 PROJECT_ROOT:", PROJECT_ROOT)
-    for p in EXTRA_PATHS:
-        if p not in sys.path:
-            sys.path.insert(0, p)
-
-    df = pd.read_parquet(f"{PROJECT_ROOT}/{datapath}")
-    return df
-
-def datarowloader(df, rowindex): #개발과정에서 사용된 함수 (스트림 데이터가 아닌 덩어리 데이터 이용)
-    row = df.iloc[rowindex]
-    return row
-
-def send_prediction_request(endpoint, arr): #colab분석서버로 요청보내는 함수
+async def send_prediction_request_async(endpoint, arr):
     if type(arr) != list:
         arr = arr.tolist()
-    res = requests.post(endpoint, json={"input": arr})
-    try:
-        return res.json()
-    except requests.exceptions.JSONDecodeError:
-        print("❌ JSONDecodeError: Flask 서버 응답이 비었거나 JSON 형식이 아닙니다.")
-        print("🔎 Response text:", res.text)
-        return {"success": False, "error": "Invalid JSON response from Colab"}
 
-
-# 사용 예시
-# colab flask서버와 연결을 확인하기 위해 사용했던 방식
-# data = datarowloader(dataloader("no_label.parquet"), 0)
-# print(send_prediction_request(f"{COLAB_URL}/predict", data))
+    async with aiohttp.ClientSession() as session:
+        async with session.post(endpoint, json={"input": arr}) as resp:
+            return await resp.json()

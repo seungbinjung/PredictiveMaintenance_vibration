@@ -2,11 +2,11 @@ import redis
 import json
 import time
 from config import REDIS_HOST, REDIS_PORT, REDIS_DB
-from services.colab_client import send_prediction_request
+from services.colab_client import send_prediction_request_async
 from config import COLAB_URL
 from database import SessionLocal
 from models.analysis_result import AnalysisResult
-
+from services.analysis_worker import analysis_queue
 #스트림되는 데이터를 큐에 저장해서 분석서버에 보내기 적합한 형태 (1,12000)로 만든 후 request보내는 모듈
 
 BATCH_SIZE = 12000
@@ -48,22 +48,11 @@ class StreamDB:
         self.active_queue, self.inactive_queue = self.inactive_queue, self.active_queue
 
     def send_to_analysis(self, data):
-        """가득 찬 큐의 데이터를 Colab 분석 서버로 전송"""
+        """가득 찬 큐의 배치를 분석 대기열에 넣기 (non-blocking)"""
         try:
-            response = send_prediction_request(f"{COLAB_URL}/predict", data)
-            print(f"✅ Sent batch ({len(data)} pts) to analysis. Result: {response}")
-            # --- 결과 저장 ---
-            db = SessionLocal()
-            result = AnalysisResult(
-                batch_id=int(time.time()),  # 단순한 배치 구분값 (timestamp)
-                input_data=data,
-                prediction=response.get("prediction", None),
-                label=str(response.get("label", "")),
-            )
-            db.add(result)
-            db.commit()
-            db.close()
-            print("💾 Saved analysis result to DB.")
+             # AI 분석 워커에게 배치 전달 (즉시 반환됨)
+            analysis_queue.put_nowait(data)
+            print(f"📦 Batch queued for analysis ({len(data)} pts)")
 
         except Exception as e:
             print(f"❌ Failed to send batch to analysis: {e}")

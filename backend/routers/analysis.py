@@ -1,16 +1,15 @@
 from fastapi import APIRouter, HTTPException
 import requests
 from config import COLAB_URL
-from services.colab_client import send_prediction_request, dataloader, datarowloader
+from services.colab_client import send_prediction_request_async
 
 router = APIRouter()
 
 @router.post("/predict")
 def predict_from_colab(data: dict):
     try:
-        df = dataloader("/no_label.parquet")
-        input_data = datarowloader(df, 0)
-        result = send_prediction_request(f"{COLAB_URL}/predict", input_data)
+
+        result = send_prediction_request_async(f"{COLAB_URL}/predict", input_data)
         print(result)
         return {
             "source": "colab",

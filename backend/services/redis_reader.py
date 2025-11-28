@@ -19,7 +19,7 @@ class RedisStreamReader:
             entries = self.client.xread(
                 {"vibration_stream": self.last_id},
                 count=1,
-                block=1  # 100ms 대기 (데이터가 없으면 None 반환)
+                block=1  # 1ms 대기 (데이터가 없으면 None 반환)
             )
         except Exception as e:
             print(f"❌ Redis XREAD Error: {e}")
