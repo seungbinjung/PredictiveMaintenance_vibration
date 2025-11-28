@@ -26,6 +26,8 @@ source ~/.zshrc
 
 실행방법 
 1. colab분석서버를 킨다
+2. 프론트엔드를 킨다 (frontend폴더에서)
+    // npm run dev
 2. 백엔드서버를 킨다 (backend폴더에서)
     // uvicorn main:app --reload
 3. parquet_to_redis.py를 실행시킨다.

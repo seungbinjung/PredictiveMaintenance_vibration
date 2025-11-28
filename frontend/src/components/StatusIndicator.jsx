@@ -1,39 +1,57 @@
 import { useEffect, useState } from "react";
 
-export default function StatusIndicator() {
-  const [status, setStatus] = useState({});
+export default function SystemStatus() {
+  const [status, setStatus] = useState({
+    fastapi: false,
+    redis: false,
+    postgresql: false,
+    colab: false,
+  });
 
+  // 1초마다 상태 갱신
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const fetchStatus = async () => {
       try {
         const res = await fetch("http://127.0.0.1:8000/system/status");
         const json = await res.json();
         setStatus(json);
-      } catch (e) {
-        console.log("Status fetch error:", e);
+      } catch (err) {
+        console.log("Status fetch error:", err);
       }
-    }, 2000);
+    };
 
-    return () => clearInterval(interval);
+    fetchStatus();
+    const timer = setInterval(fetchStatus, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
-  const Item = ({ name, ok }) => (
-    <div className="flex items-center gap-3 text-lg">
-      <div
-        className={`w-3 h-3 rounded-full ${
-          ok ? "bg-green-400" : "bg-red-500"
-        }`}
-      ></div>
-      {name}
-    </div>
-  );
+  const getStatusDot = (ok) =>
+    ok ? (
+      <span className="text-green-400">●</span>
+    ) : (
+      <span className="text-red-500">●</span>
+    );
 
   return (
-    <div className="space-y-3">
-      <Item name="FastAPI" ok={status.api} />
-      <Item name="Redis" ok={status.redis} />
-      <Item name="PostgreSQL" ok={status.db} />
-      <Item name="Colab Server" ok={status.colab} />
+    <div className="space-y-3 text-white p-4">
+      <h2 className="text-xl font-bold mb-4">시스템 상태</h2>
+
+      <div className="flex justify-between">
+        <span>FastAPI 서버</span> {getStatusDot(status.fastapi)}
+      </div>
+
+      <div className="flex justify-between">
+        <span>Redis</span> {getStatusDot(status.redis)}
+      </div>
+
+      <div className="flex justify-between">
+        <span>PostgreSQL</span> {getStatusDot(status.postgresql)}
+      </div>
+
+      <div className="flex justify-between">
+        <span>Colab 분석 서버</span> {getStatusDot(status.colab)}
+      </div>
     </div>
   );
 }

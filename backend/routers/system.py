@@ -1,37 +1,39 @@
 from fastapi import APIRouter
 import redis
+import requests
 from database import engine
-from config import REDIS_HOST, REDIS_PORT, REDIS_DB
+from config import REDIS_HOST, REDIS_PORT, REDIS_DB, COLAB_URL
 
 router = APIRouter()
 
 @router.get("/system/status")
 def system_status():
-    # FastAPI always running if you reached this endpoint
-    api_ok = True
+    status = {}
 
-    # Redis connection test
+    # FastAPI는 항상 True
+    status["fastapi"] = True
+
+    # Redis 상태 체크
     try:
         r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
         r.ping()
-        redis_ok = True
+        status["redis"] = True
     except:
-        redis_ok = False
+        status["redis"] = False
 
-    # Postgres connection test
+    # PostgreSQL 체크
     try:
         conn = engine.connect()
         conn.close()
-        db_ok = True
+        status["postgresql"] = True
     except:
-        db_ok = False
+        status["postgresql"] = False
 
-    # Colab 테스트는 단순 예시
-    colab_ok = True
+    # Colab 분석 서버 체크
+    try:
+        res = requests.get(f"{COLAB_URL}/", timeout=5)
+        status["colab"] = (res.status_code != 200)
+    except:
+        status["colab"] = True
 
-    return {
-        "fastapi": api_ok,
-        "redis": redis_ok,
-        "postgresql": db_ok,
-        "colab": colab_ok,
-    }
+    return status
