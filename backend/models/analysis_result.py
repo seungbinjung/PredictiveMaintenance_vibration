@@ -6,7 +6,6 @@ class AnalysisResult(Base):
     __tablename__ = "analysis_results"
 
     id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, nullable=False)
     input_data = Column(JSON, nullable=False)
     prediction = Column(Float, nullable=False)
     probabilities = Column(JSON, nullable=True)   # ★ 추가됨

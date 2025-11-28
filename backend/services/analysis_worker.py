@@ -8,6 +8,12 @@ from config import COLAB_URL
 
 analysis_queue = asyncio.Queue()
 
+LABEL_MAP = {
+    0: "정상",
+    1: "회전체불평형",
+    2: "축정렬불량",
+}
+
 async def analysis_worker():
     print("🚀 Analysis worker started")
     while True:
@@ -27,10 +33,10 @@ async def analysis_worker():
             # -------------------------
             db = SessionLocal()
             record = AnalysisResult(
-                batch_id=int(time.time()),
                 input_data=batch,  # JSON 혹은 Array 로 저장 가능
                 prediction=result.get("prediction"),
-                probabilities=result.get("probabilities")
+                probabilities=result.get("probabilities"),
+                label=LABEL_MAP.get(result.get("prediction"), "Unknown")
             )
             db.add(record)
             db.commit()

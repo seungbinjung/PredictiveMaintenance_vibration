@@ -29,7 +29,6 @@ def get_latest_result():
 
     return {
         "id": result.id,
-        "batch_id": result.batch_id,
         "input_length": len(result.input_data),
         "prediction": result.prediction,
         "label": result.label,
