@@ -1,22 +1,31 @@
 # backend/services/vibration_task.py
+
 import asyncio
 from services.redis_reader import redis_reader
 from services.stream_db import stream_db
+from services.sse_manager import sse_manager
+
+DOWNSAMPLE_RATE = 5   # 550Hz → 110Hz로 감소 (=550/5)
+
+counter = 0
 
 async def vibration_loop():
-    print("🔥 vibration loop started!")
-
+    global counter
     while True:
-        # Redis에서 다음 값 읽기
         value = redis_reader.get_next_value()
 
-        # 데이터가 없으면 짧게 대기 후 다시 시도
         if value is None:
             await asyncio.sleep(0.001)
             continue
+        
+        print("BROADCAST VALUE:", value)
 
-        # 큐에 데이터 push (batch size 체크 등 내부 처리)
+        # DB에는 원본(550Hz)을 그대로 저장
         stream_db.push_vibration(value)
 
-        # 너무 빠르게 도는 것을 방지, CPU 점유 최소화
-        await asyncio.sleep(0.00001)
+        # SSE는 downsample해서 전송
+        counter += 1
+        if counter % DOWNSAMPLE_RATE == 0:
+            await sse_manager.broadcast(value)
+
+        await asyncio.sleep(0.0001)

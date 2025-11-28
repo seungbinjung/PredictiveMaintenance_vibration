@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import analysis, data, results, sse
+from routers import analysis, data, results, sse, stream, system
 from database import Base, engine
 from models.analysis_result import AnalysisResult
 from services.vibration_task import vibration_loop
@@ -43,6 +43,8 @@ app.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
 app.include_router(data.router, prefix="/data", tags=["data"])
 app.include_router(results.router, prefix="/results", tags=["results"])
 app.include_router(sse.router, prefix="/sse", tags=["sse"])
+app.include_router(stream.router, prefix="/stream", tags=["stream"])
+app.include_router(system.router, tags=["system"])
 
 @app.get("/")
 def root():

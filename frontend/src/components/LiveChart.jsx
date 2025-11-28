@@ -1,46 +1,77 @@
-import { useEffect, useState } from "react";
-import ReactECharts from "echarts-for-react";
+// frontend/src/components/LiveChart.jsx
+import { useEffect, useRef } from "react";
+import useSSE from "../hooks/useSSE";
+import Chart from "chart.js/auto";
+
+const MAX_POINTS = 200;  // 화면에 보일 포인트 수 (약 2초 분량)
 
 export default function LiveChart() {
-  const [data, setData] = useState([]);
+  const value = useSSE("http://localhost:8000/sse/vibration");
+  const chartRef = useRef(null);
+  const chartInstanceRef = useRef(null);
 
+  // Chart.js 초기화
   useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch("http://127.0.0.1:8000/data/latest");
-        const json = await res.json();
-        setData(json.values || []);
-      } catch (e) {
-        console.log("Fetch error:", e);
-      }
-    }, 400);
+    if (!chartRef.current) return;
 
-    return () => clearInterval(interval);
+    const ctx = chartRef.current.getContext("2d");
+
+    chartInstanceRef.current = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: "Real-time Vibration",
+            data: [],
+            borderColor: "rgb(75, 192, 192)",
+            borderWidth: 1.2,
+            tension: 0.3,
+            pointRadius: 0,
+          },
+        ],
+      },
+      options: {
+        animation: false,
+        normalized: true,
+        responsive: true,
+        scales: {
+          x: {
+            display: false,
+          },
+          y: {
+            // beginAtZero: true,
+            min: -1,
+            max: 1,
+          },
+        },
+      },
+    });
+
+    return () => chartInstanceRef.current?.destroy();
   }, []);
 
-  const option = {
-    backgroundColor: "#1a1a1a",
-    textStyle: { color: "#ddd" },
-    xAxis: {
-      type: "category",
-      data: data.map((_, i) => i),
-      axisLine: { lineStyle: { color: "#888" } },
-    },
-    yAxis: {
-      type: "value",
-      axisLine: { lineStyle: { color: "#888" } },
-      splitLine: { lineStyle: { color: "#333" } },
-    },
-    series: [
-      {
-        type: "line",
-        data,
-        smooth: true,
-        lineStyle: { color: "#00ff88", width: 1.5 },
-        symbol: "none",
-      },
-    ],
-  };
+  // SSE 데이터 들어올 때마다 차트 업데이트
+  useEffect(() => {
+    if (value === null || !chartInstanceRef.current) return;
 
-  return <ReactECharts option={option} style={{ height: 300 }} />;
+    const chart = chartInstanceRef.current;
+
+    chart.data.labels.push("");       // x축 dummy label
+    chart.data.datasets[0].data.push(value);
+
+    // 오래된 값 제거 (슬라이딩 윈도우)
+    if (chart.data.labels.length > MAX_POINTS) {
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+    }
+
+    chart.update("none"); // 애니메이션 없이 빠르게 업데이트
+  }, [value]);
+
+  return (
+    <div className="w-full h-full p-4">
+      <canvas ref={chartRef} />
+    </div>
+  );
 }
