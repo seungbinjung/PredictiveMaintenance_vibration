@@ -75,23 +75,25 @@ export default function ProbabilityGauge() {
   }, [latest]);
 
   return (
-    <div className="relative w-60 h-60 flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="relative w-60 h-60 flex items-center justify-center">
 
-      {/* 도넛 차트 */}
-      <canvas ref={chartRef} className="absolute" />
+        {/* 도넛 차트 */}
+        <canvas ref={chartRef} className="absolute" />
 
-      {/* 중앙 표시 텍스트 */}
-      <div className="absolute text-center">
-        <div className="text-lg font-bold text-white">
-          {latest ? LABEL_MAP[latest.prediction] : "-"}
-        </div>
+        {/* 중앙 표시 텍스트 */}
+        <div className="absolute text-center">
+          <div className="text-lg font-bold text-white">
+            {latest ? LABEL_MAP[latest.prediction] : "-"}
+          </div>
 
-        <div className="text-3xl font-semibold mt-1"
-          style={{ color: COLOR_MAP[latest?.prediction] || "white" }}
-        >
-          {latest && latest.probabilities
-            ? Math.round(latest.probabilities[latest.prediction] * 100) + "%"
-            : "0%"}
+          <div className="text-3xl font-semibold mt-1"
+            style={{ color: COLOR_MAP[latest?.prediction] || "white" }}
+          >
+            {latest && latest.probabilities
+              ? Math.round(latest.probabilities[latest.prediction] * 100) + "%"
+              : "0%"}
+          </div>
         </div>
       </div>
     </div>
