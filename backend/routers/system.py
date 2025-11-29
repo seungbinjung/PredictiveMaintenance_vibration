@@ -32,8 +32,8 @@ def system_status():
     # Colab 분석 서버 체크
     try:
         res = requests.get(f"{COLAB_URL}/", timeout=5)
-        status["colab"] = (res.status_code != 200)
+        status["colab"] = (res.status_code == 200)
     except:
-        status["colab"] = True
+        status["colab"] = False
 
     return status

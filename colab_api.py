@@ -21,3 +21,7 @@ async def predict(data: PredictInput):
         "prediction": idx,
         "probabilities": pred[0].tolist()
     }
+
+@app.get("/")
+async def root():
+    return {"status": "colab ok"}
